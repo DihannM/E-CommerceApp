@@ -76,4 +76,27 @@ module.exports = class CartService {
     }
   }
 
+  async checkout(cartId, userId, paymentInfo) {
+    try {
+
+      // Load cart items
+      const cartItems = await CartItemModel.find(cartId);
+
+      // Generate total price from cart items
+      const total = cartItems.reduce((total, item) => {
+        return total += Number(item.price);
+      }, 0);
+
+      // Generate initial order
+      const Order = new OrderModel({ total, userId });
+      Order.addItems(cartItems);
+      await Order.create();
+
+      return Order;
+
+    } catch(err) {
+      throw err;
+    }
+  }
+
 }
